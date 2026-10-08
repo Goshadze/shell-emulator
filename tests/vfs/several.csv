@@ -1,0 +1,6 @@
+path,type,content
+/a.txt,file,ZmlsZSBhCg==
+/b.txt,file,ZmlsZSBiCg==
+/c.txt,file,ZmlsZSBjCg==
+/docs,dir,
+/docs/readme.txt,file,cmVhZG1lCg==

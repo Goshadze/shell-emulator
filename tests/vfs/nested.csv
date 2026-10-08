@@ -1,0 +1,10 @@
+path,type,content
+/hello.txt,file,aGVsbG8K
+/docs,dir,
+/docs/readme.txt,file,cmVhZG1lCg==
+/docs/notes,dir,
+/docs/notes/todo.txt,file,dG9kbwo=
+/docs/notes/deep,dir,
+/docs/notes/deep/secret.txt,file,ZGVlcCBmaWxlCg==
+/bin,dir,
+/bin/tool.bin,file,AAH//g==

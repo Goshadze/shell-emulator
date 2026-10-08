@@ -1,15 +1,14 @@
 import tkinter as tk
 
-from shell import ShellError, ShellExit, execute
+from shell import Shell, ShellError, ShellExit
+from vfs import Vfs, load
 
-VFS_NAME = "vfs"
 PROMPT = "$ "
 
 
 class App(tk.Tk):
     def __init__(self, args):
         super().__init__()
-        self.title(f"Shell Emulator - [{VFS_NAME}]")
         self.output = tk.Text(self, state="disabled", height=24, width=80)
         self.output.tag_config("error", foreground="red")
         self.output.pack(fill="both", expand=True)
@@ -19,6 +18,8 @@ class App(tk.Tk):
         self.entry.focus()
         for name, value in vars(args).items():
             self.print(f"[debug] {name}={value}")
+        self.shell = Shell(self.load_vfs(args.vfs))
+        self.title(f"Shell Emulator - [{self.shell.vfs.name}]")
         if args.script:
             self.after(100, self.run_script, args.script)
 
@@ -28,10 +29,19 @@ class App(tk.Tk):
         self.output.config(state="disabled")
         self.output.see("end")
 
+    def load_vfs(self, path):
+        if path is None:
+            return Vfs()
+        try:
+            return load(path)
+        except ShellError as err:
+            self.print(str(err), "error")
+            return Vfs()
+
     def run(self, line):
         self.print(PROMPT + line)
         try:
-            result = execute(line)
+            result = self.shell.execute(line)
         except ShellError as err:
             self.print(str(err), "error")
             return False

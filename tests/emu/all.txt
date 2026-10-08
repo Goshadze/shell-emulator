@@ -1,0 +1,6 @@
+ls
+ls -l "a b"
+cd /docs
+cd "my dir" /tmp
+vfs-info
+vfs-info extra

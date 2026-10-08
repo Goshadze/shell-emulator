@@ -1,3 +1,3 @@
 #!/bin/sh
-cd "$(dirname "$0")" || exit 1
-PYTHONPATH=src exec python3 src/main.py "$@"
+dir=$(dirname "$0")
+PYTHONPATH="$dir/src" exec python3 "$dir/src/main.py" "$@"

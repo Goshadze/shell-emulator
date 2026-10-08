@@ -1,0 +1,3 @@
+ls
+cd "my dir" /tmp
+ls -l "a b"

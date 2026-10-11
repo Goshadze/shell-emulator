@@ -3,8 +3,6 @@ import tkinter as tk
 from shell import Shell, ShellError, ShellExit
 from vfs import Vfs, load
 
-PROMPT = "$ "
-
 
 class App(tk.Tk):
     def __init__(self, args):
@@ -39,7 +37,7 @@ class App(tk.Tk):
             return Vfs()
 
     def run(self, line):
-        self.print(PROMPT + line)
+        self.print(f"{self.shell.cwd}$ {line}")
         try:
             result = self.shell.execute(line)
         except ShellError as err:

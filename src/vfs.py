@@ -3,17 +3,19 @@ import csv
 import hashlib
 import io
 import os
+from collections import namedtuple
 
 from shell import ShellError
 
 KINDS = ("dir", "file")
+Node = namedtuple("Node", "kind data")
 
 
 class Vfs:
     def __init__(self, name="vfs", data=b"", nodes=None):
         self.name = name
         self.sha256 = hashlib.sha256(data).hexdigest()
-        self.nodes = nodes or {}
+        self.nodes = {"/": Node("dir", b""), **(nodes or {})}
 
 
 def parse_row(row):
@@ -21,7 +23,7 @@ def parse_row(row):
     if kind not in KINDS:
         raise ValueError(f"unknown type {kind!r}")
     content = base64.b64decode(row["content"] or "", validate=True)
-    return row["path"], (kind, content)
+    return row["path"], Node(kind, content)
 
 
 def load(path):

@@ -1,6 +1,14 @@
-ls
-ls -l "a b"
-cd /docs
-cd "my dir" /tmp
 vfs-info
-vfs-info extra
+ls
+ls /docs
+cd docs/notes
+ls
+cd deep
+cat secret.txt
+cd ../..
+cat readme.txt /hello.txt
+cd
+cal
+cal 2024
+cal 2 2024
+cat /missing

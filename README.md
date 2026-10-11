@@ -4,7 +4,8 @@
 
 ## Описание
 
-Окно с полем вывода и строкой ввода. Заголовок окна содержит имя VFS.
+Окно с полем вывода и строкой ввода. Заголовок окна содержит имя VFS,
+приглашение ввода содержит текущую папку (`/docs$`).
 
 ## Функции
 
@@ -12,8 +13,12 @@
 - Сообщения об ошибках: неизвестная команда, неверные аргументы,
   незакрытая кавычка.
 - Команды:
-  - `ls [args...]` - заглушка, выводит имя и аргументы
-  - `cd [args...]` - заглушка, выводит имя и аргументы
+  - `ls [path]` - содержимое папки (по умолчанию текущей) или имя файла
+  - `cd [path]` - смена текущей папки (без аргумента - `/`), поддерживаются
+    абсолютные и относительные пути, `.` и `..`
+  - `cat path...` - вывод содержимого файлов
+  - `cal [[month] year]` - календарь на текущий месяц, на год (`cal 2024`)
+    или на месяц года (`cal 2 2024`)
   - `exit` - завершение работы эмулятора
   - `vfs-info` - имя загруженной VFS и SHA-256 хеш её данных
 
@@ -77,23 +82,43 @@ tests/all_commands.sh
 ## Примеры
 
 ```
-$ ls
-ls: args=[]
-$ cd "my dir" /tmp
-cd: args=['my dir', '/tmp']
-$ foo
-foo: command not found
-$ ls "oops
-parse error: No closing quotation
-$ exit 1
-exit: too many arguments
-$ exit
+/$ ls
+bin
+docs
+hello.txt
+/$ cd docs/notes
+/docs/notes$ ls
+deep
+todo.txt
+/docs/notes$ cat todo.txt
+todo
+/docs/notes$ cd ../..
+/$ cal 2 2024
+   February 2024
+Su Mo Tu We Th Fr Sa
+             1  2  3
+ 4  5  6  7  8  9 10
+11 12 13 14 15 16 17
+18 19 20 21 22 23 24
+25 26 27 28 29
+/$ vfs-info
+name: nested.csv
+sha256: 6f70915074fc292a715132b5ce68a2b65753af616f0deefac4903a7720ffd4e3
 ```
 
+Ошибки:
+
 ```
-$ vfs-info
-name: min.csv
-sha256: 34b4377a9fbb9e382d6a9cd879f3768d3714b0e4bf1955e5ea46d0575df64b13
+/$ foo
+foo: command not found
+/$ cd /nope
+cd: /nope: no such file or directory
+/$ cat /docs
+cat: /docs: is a directory
+/$ ls "oops
+parse error: No closing quotation
+/$ exit 1
+exit: too many arguments
 ```
 
 Запуск со стартовым скриптом `tests/emu/error.txt`:
@@ -102,9 +127,8 @@ sha256: 34b4377a9fbb9e382d6a9cd879f3768d3714b0e4bf1955e5ea46d0575df64b13
 $ ./run.sh --script tests/emu/error.txt
 [debug] vfs=None
 [debug] script=tests/emu/error.txt
-$ ls
-ls: args=[]
-$ foo
+/$ ls
+/$ foo
 foo: command not found
 script: error at line 2
 ```

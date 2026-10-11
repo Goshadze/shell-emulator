@@ -13,10 +13,13 @@
 - Сообщения об ошибках: неизвестная команда, неверные аргументы,
   незакрытая кавычка.
 - Команды:
-  - `ls [path]` - содержимое папки (по умолчанию текущей) или имя файла
+  - `ls [-l] [path]` - содержимое папки (по умолчанию текущей) или имя файла;
+    с `-l` выводит тип (`d` - папка, `-` - файл), владельца и имя
   - `cd [path]` - смена текущей папки (без аргумента - `/`), поддерживаются
     абсолютные и относительные пути, `.` и `..`
   - `cat path...` - вывод содержимого файлов
+  - `chown owner path...` - смена владельца; изменение выполняется только
+    в памяти, CSV-файл не меняется
   - `cal [[month] year]` - календарь на текущий месяц, на год (`cal 2024`)
     или на месяц года (`cal 2 2024`)
   - `exit` - завершение работы эмулятора
@@ -44,12 +47,13 @@ VFS загружается из CSV-файла целиком в память, �
   (`/docs/notes/todo.txt`)
 - `type` - `dir` или `file`
 - `content` - содержимое файла в base64 (для папок пусто)
+- `owner` - владелец (необязательная колонка, по умолчанию `root`)
 
 ```
-path,type,content
-/hello.txt,file,aGVsbG8K
-/docs,dir,
-/docs/readme.txt,file,cmVhZG1lCg==
+path,type,content,owner
+/hello.txt,file,aGVsbG8K,root
+/docs,dir,,root
+/docs/readme.txt,file,cmVhZG1lCg==,alice
 ```
 
 Ошибка загрузки (файл не найден, неверный формат) выводится в окно,
@@ -101,9 +105,18 @@ Su Mo Tu We Th Fr Sa
 11 12 13 14 15 16 17
 18 19 20 21 22 23 24
 25 26 27 28 29
+/$ ls -l
+d root bin
+d root docs
+- root hello.txt
+/$ chown bob hello.txt /docs
+/$ ls -l
+d root bin
+d bob docs
+- bob hello.txt
 /$ vfs-info
 name: nested.csv
-sha256: 6f70915074fc292a715132b5ce68a2b65753af616f0deefac4903a7720ffd4e3
+sha256: b2a2bfaa2b4c797cae5616e343e82846cbacce31313ebb49cae87d63e5476b82
 ```
 
 Ошибки:
@@ -115,6 +128,8 @@ foo: command not found
 cd: /nope: no such file or directory
 /$ cat /docs
 cat: /docs: is a directory
+/$ chown alice /missing
+chown: /missing: no such file or directory
 /$ ls "oops
 parse error: No closing quotation
 /$ exit 1

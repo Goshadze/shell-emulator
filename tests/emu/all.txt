@@ -1,6 +1,6 @@
 vfs-info
 ls
-ls /docs
+ls -l /docs
 cd docs/notes
 ls
 cd deep
@@ -11,4 +11,7 @@ cd
 cal
 cal 2024
 cal 2 2024
-cat /missing
+ls -l
+chown bob hello.txt /docs
+ls -l
+chown alice /missing

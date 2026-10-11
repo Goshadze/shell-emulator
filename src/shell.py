@@ -28,6 +28,7 @@ class Shell:
             "cd": self.cd,
             "cal": self.cal,
             "cat": self.cat,
+            "chown": self.chown,
             "exit": self.exit,
             "vfs-info": self.vfs_info,
         }
@@ -44,8 +45,17 @@ class Shell:
             if p != "/" and posixpath.dirname(p) == path
         )
 
+    def entry(self, path, long):
+        name = posixpath.basename(path)
+        if not long:
+            return name
+        node = self.vfs.nodes[path]
+        kind = "d" if node.kind == "dir" else "-"
+        return f"{kind} {node.owner} {name}"
+
     def ls(self, name, args):
-        match args:
+        long = "-l" in args
+        match [arg for arg in args if arg != "-l"]:
             case []:
                 target = "."
             case [target]:
@@ -53,9 +63,11 @@ class Shell:
             case _:
                 raise ShellError(f"{name}: too many arguments")
         path = self.resolve(name, target)
-        if self.vfs.nodes[path].kind != "dir":
-            return posixpath.basename(path)
-        return "\n".join(posixpath.basename(p) for p in self.children(path))
+        if self.vfs.nodes[path].kind == "dir":
+            paths = self.children(path)
+        else:
+            paths = [path]
+        return "\n".join(self.entry(p, long) for p in paths)
 
     def cd(self, name, args):
         match args:
@@ -81,6 +93,15 @@ class Shell:
                 raise ShellError(f"{name}: {arg}: is a directory")
             parts.append(node.data.decode("utf-8", errors="replace"))
         return "".join(parts).rstrip("\n")
+
+    def chown(self, name, args):
+        if not args[1:]:
+            raise ShellError(f"{name}: missing operand")
+        owner, *paths = args
+        targets = [self.resolve(name, path) for path in paths]
+        for path in targets:
+            self.vfs.nodes[path] = self.vfs.nodes[path]._replace(owner=owner)
+        return ""
 
     def cal(self, name, args):
         try:

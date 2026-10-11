@@ -8,14 +8,15 @@ from collections import namedtuple
 from shell import ShellError
 
 KINDS = ("dir", "file")
-Node = namedtuple("Node", "kind data")
+DEFAULT_OWNER = "root"
+Node = namedtuple("Node", "kind data owner")
 
 
 class Vfs:
     def __init__(self, name="vfs", data=b"", nodes=None):
         self.name = name
         self.sha256 = hashlib.sha256(data).hexdigest()
-        self.nodes = {"/": Node("dir", b""), **(nodes or {})}
+        self.nodes = {"/": Node("dir", b"", DEFAULT_OWNER), **(nodes or {})}
 
 
 def parse_row(row):
@@ -23,7 +24,7 @@ def parse_row(row):
     if kind not in KINDS:
         raise ValueError(f"unknown type {kind!r}")
     content = base64.b64decode(row["content"] or "", validate=True)
-    return row["path"], Node(kind, content)
+    return row["path"], Node(kind, content, row.get("owner") or DEFAULT_OWNER)
 
 
 def load(path):
